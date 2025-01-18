@@ -42,10 +42,11 @@
               {% for comment in comments %}
               <li>
                 <div class="commenterImage">
-                  <img src="../static/assets/img/default-profile.jpg" /> <!-- Placeholder for now -->
+                  <img src="{{ gravatar(comment.author.email) }}" /> <!-- Placeholder for now -->
                 </div>
                 <div class="commentText">
-                  <p>{{ comment.text }}</p>
+                  <p>{{ comment.text|e }}</p> 
+                  <!-- escaping html  -->
                   <span class="date sub-text">{{ comment.author.name }}</span> <!-- Show commenter's name -->
                 </div>
               </li>

@@ -216,7 +216,7 @@ def edit_post(post_id):
 @app.route("/delete/<int:post_id>")
 def delete_post(post_id):
     post_to_delete = db.get_or_404(BlogPost, post_id)
-    if post_to_delete.author_id != current_user.id:
+    if post_to_delete.author_id != current_user.id  and current_user.id !=1:
         abort(403) 
     db.session.delete(post_to_delete)
     db.session.commit()
