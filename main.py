@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
-# Create admin-only decorator
 def admin_only(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -42,18 +41,18 @@ gravatar = Gravatar(app,
                     use_ssl=False,
                     base_url=None)
 
-# Configure Flask-Login
+
 login_manager = LoginManager(app)
 login_manager.login_view = "login"
 
-# CREATE DATABASE
+# creating database..
 class Base(DeclarativeBase):
     pass
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DB_URI")
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
-# CONFIGURE TABLES
+#  TABLES
 class User(UserMixin, db.Model):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -124,6 +123,7 @@ def login():
     if form.validate_on_submit():
         email = form.email.data
         password = form.password.data
+
 
         user = User.query.filter_by(email=email).first()
 
@@ -212,6 +212,7 @@ def edit_post(post_id):
         return redirect(url_for("show_post", post_id=post.id))
     return render_template("make-post.html", form=edit_form, current_user=current_user, is_edit=True)
 
+# delete only by user admin , of their own blogs or post..
 @app.route("/delete/<int:post_id>")
 def delete_post(post_id):
     post_to_delete = db.get_or_404(BlogPost, post_id)
@@ -257,8 +258,12 @@ def contact():
             return render_template("contact.html", msg_sent=False, error="Failed to send message. Please try again.")
 
    
+
+
     msg_sent = request.args.get("msg_sent", default=False, type=bool)
     return render_template("contact.html", msg_sent=msg_sent)
+
+
 
 if __name__ == "__main__":
     app.run(debug= False, port=5002)
