@@ -5,7 +5,7 @@ from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column, joinedload
-from sqlalchemy import Integer, String, Text
+from sqlalchemy import Integer, String, Text , create_engine
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from functools import wraps
@@ -48,7 +48,8 @@ login_manager.login_view = "login"
 # creating database..
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DB_URI" , "sqlite:///posts.db")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DB_URI")
+
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
 
@@ -266,4 +267,5 @@ def contact():
 
 
 if __name__ == "__main__":
-    app.run(debug= False, port=5002)
+    port = int(os.environ.get("PORT", 5000))  
+    app.run(host="0.0.0.0", port=port)
