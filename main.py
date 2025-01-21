@@ -48,7 +48,7 @@ login_manager.login_view = "login"
 # creating database..
 class Base(DeclarativeBase):
     pass
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DB_URI")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DB_URI')
 
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
@@ -57,8 +57,8 @@ db.init_app(app)
 class User(UserMixin, db.Model):
     __tablename__ = "user"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    email: Mapped[str] = mapped_column(String(100), unique=True)
-    password: Mapped[str] = mapped_column(String(100))
+    email: Mapped[str] = mapped_column(String(1000), unique=True)
+    password: Mapped[str] = mapped_column(String(1000))
     name: Mapped[str] = mapped_column(String(1000))
     posts = relationship("BlogPost", back_populates="author")
 
