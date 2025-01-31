@@ -10,19 +10,17 @@
     <meta name="author" content="" />
     <title>Idea Chronicles</title>
     {% block styles %}
-    <!-- Load Bootstrap-Flask CSS here -->
     {{ bootstrap.load_css() }}
     <link
       rel="icon"
       type="image/x-icon"
       href="{{ url_for('static', filename='assets/favicon.ico') }}"
     />
-    <!-- Font Awesome icons (free version)-->
+    
     <script
       src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"
       crossorigin="anonymous"
     ></script>
-    <!-- Google fonts-->
     <link
       href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic"
       rel="stylesheet"
@@ -33,7 +31,6 @@
       rel="stylesheet"
       type="text/css"
     />
-    <!-- Core theme CSS (includes Bootstrap)-->
     <link
       href="{{ url_for('static', filename='css/styles.css') }}"
       rel="stylesheet"
@@ -41,10 +38,10 @@
     {% endblock %}
   </head>
   <body>
-    <!-- Navigation-->
-    <nav class="navbar navbar-expand-lg navbar-light" id="mainNav">
-      <div class="container px-4 px-lg-5">
-        <a class="navbar-brand" href="/">Idea Chronicles</a>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg " id="mainNav">
+      <div class="container px-3 px-md-4 px-lg-5">
+        <a class="navbar-brand fs-5 fs-md-4" href="/">Idea Chronicles</a>
         <button
           class="navbar-toggler"
           type="button"
@@ -54,38 +51,36 @@
           aria-expanded="false"
           aria-label="Toggle navigation"
         >
-          Menu
           <i class="fas fa-bars"></i>
         </button>
         <div class="collapse navbar-collapse" id="navbarResponsive">
-          <ul class="navbar-nav ms-auto py-4 py-lg-0">
+          <ul class="navbar-nav ms-auto py-2 py-lg-0">
             <li class="nav-item">
               <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
+                class="nav-link px-2 px-lg-3 py-2 py-lg-3"
                 href="{{ url_for('get_all_posts') }}"
                 >Home</a
               >
             </li>
-            <!-- TODO: Only show Login/Register if user is logged out. Otherwise show "Log Out" -->
-            {% if not current_user.is_authenticated: %}
+            {% if not current_user.is_authenticated %}
             <li class="nav-item">
               <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
+                class="nav-link px-2 px-lg-3 py-2 py-lg-3"
                 href="{{ url_for('login') }}"
                 >Login</a
               >
             </li>
             <li class="nav-item">
               <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
+                class="nav-link px-2 px-lg-3 py-2 py-lg-3"
                 href="{{ url_for('register') }}"
                 >Register</a
               >
-              {% else: %}
             </li>
+            {% else %}
             <li class="nav-item">
               <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
+                class="nav-link px-2 px-lg-3 py-2 py-lg-3"
                 href="{{ url_for('logout') }}"
                 >Log Out</a
               >
@@ -93,14 +88,14 @@
             {% endif %}
             <li class="nav-item">
               <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
+                class="nav-link px-2 px-lg-3 py-2 py-lg-3"
                 href="{{ url_for('about') }}"
                 >About</a
               >
             </li>
             <li class="nav-item">
               <a
-                class="nav-link px-lg-3 py-3 py-lg-4"
+                class="nav-link px-2 px-lg-3 py-2 py-lg-3"
                 href="{{ url_for('contact') }}"
                 >Contact</a
               >
@@ -109,5 +104,12 @@
         </div>
       </div>
     </nav>
+
+    <!-- Main Content -->
+    
+    {% block scripts %}
+    {{ bootstrap.load_js() }}
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
+    {% endblock %}
   </body>
 </html>

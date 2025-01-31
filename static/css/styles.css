@@ -9,13 +9,37 @@
  * Copyright 2011-2022 The Bootstrap Authors
  * Copyright 2011-2022 Twitter, Inc.
  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE)
- */
- .highlight {
-  color: #00008B;  /* Blue text color */
-  font-weight: bold;  /* Make the text stand out */
-    /* Add underline for emphasis */
+ */.like-comment-section {
+  display: flex;
+  align-items: center; /* Vertically center items */
 }
 
+.like-section, 
+.comment-section {
+  display: flex; /* Use Flexbox for each section */
+  align-items: center;
+  margin-right: 1rem; /* Space between sections */
+}
+
+.like-form,
+.comment-link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer; /* Add cursor pointer for better UX */
+}
+
+.like-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer; /* Add cursor pointer for better UX */
+}
+
+.like-button i {
+  font-size: 1.5rem; /* Adjust the size of the heart icon */
+  color: #ff0000; /* Change the color of the heart icon */
+}
 /* Example: Styles for smaller screens */
 @media (max-width: 767px) {
   .some-element {

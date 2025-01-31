@@ -1,15 +1,16 @@
-from flask import Flask, abort, render_template, redirect, url_for, flash, request
+from flask import Flask, abort, render_template, redirect, url_for, flash, request , jsonify
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column, joinedload
-from sqlalchemy import Integer, String, Text , create_engine
+from sqlalchemy import Integer, String, Text , create_engine , DateTime
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from functools import wraps
 from datetime import date
+import datetime
 import smtplib
 import requests
 
@@ -61,6 +62,7 @@ class User(UserMixin, db.Model):
     password: Mapped[str] = mapped_column(String(1000))
     name: Mapped[str] = mapped_column(String(1000))
     posts = relationship("BlogPost", back_populates="author")
+    comments = relationship("Comment", back_populates="author") # Added relationship for comments
 
     def set_password(self, password: str):
         self.password = generate_password_hash(password, method='pbkdf2:sha512')
@@ -79,6 +81,14 @@ class BlogPost(db.Model):
     body: Mapped[str] = mapped_column(Text, nullable=False)
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
     comments = relationship("Comment", back_populates="post")
+    likes = relationship('Like', back_populates='post', lazy=True)
+
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))  # Assuming you have a User model
+    post_id = db.Column(db.Integer, db.ForeignKey('blog_posts.id'))
+    post = relationship("BlogPost" , back_populates="likes" )
+    timestamp = db.Column(db.DateTime, default= datetime.datetime.now)  # Add a timestamp
 
 class Comment(db.Model):
     __tablename__ = "comments"
@@ -86,9 +96,12 @@ class Comment(db.Model):
     text: Mapped[str] = mapped_column(Text, nullable=False)
     author_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("user.id"))
     post_id: Mapped[int] = mapped_column(Integer, db.ForeignKey("blog_posts.id"))
-    author = relationship("User")
+    author = relationship("User" , back_populates= "comments")
     post = relationship("BlogPost", back_populates="comments")
     date: Mapped[str] = mapped_column(String(250), nullable=False)
+
+
+
 
 with app.app_context():
     db.create_all()
@@ -168,7 +181,13 @@ def show_post(post_id):
         db.session.commit()
         return redirect(url_for("show_post", post_id=post_id))
     comments = requested_post.comments
-    return render_template("post.html", post=requested_post, form=form, comments=comments, current_user=current_user)
+    if current_user.is_authenticated:
+        user_liked = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first() is not None
+    else:
+        user_liked = False
+
+    return render_template("post.html", post=requested_post, form=form, comments=comments, current_user=current_user, user_liked=user_liked)
+
 
 @app.route("/new-post", methods=["GET", "POST"])
 def add_new_post():
@@ -264,6 +283,36 @@ def contact():
     msg_sent = request.args.get("msg_sent", default=False, type=bool)
     return render_template("contact.html", msg_sent=msg_sent)
 
+
+@app.route("/delete-comment/<int:comment_id>")
+def delete_comment(comment_id):
+    comment_to_delete = db.get_or_404(Comment, comment_id)
+    if comment_to_delete.author_id != current_user.id and comment_to_delete.post.author_id != current_user.id:
+        abort(403)
+    db.session.delete(comment_to_delete)
+    db.session.commit()
+    flash('Comment deleted successfully', 'success')
+    return redirect(url_for('get_all_posts'))
+
+
+
+
+@app.route('/like/<int:post_id>', methods=['POST'])
+def like_post(post_id):
+    post = BlogPost.query.get_or_404(post_id)
+    like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+
+    if like:
+        db.session.delete(like)
+        db.session.commit()
+        flash('You unliked this post.', 'info')
+    else:
+        new_like = Like(user_id=current_user.id, post_id=post_id)
+        db.session.add(new_like)
+        db.session.commit()
+        flash('You liked this post.', 'success')
+
+    return redirect(url_for('show_post', post_id=post_id))
 
 
 if __name__ == "__main__":

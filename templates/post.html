@@ -1,6 +1,7 @@
 {% include "header.html" %}
 {% from "bootstrap5/form.html" import render_form %}
 <!-- Page Header-->
+
 <header class="masthead" style="background-image: url('{{post.img_url}}')">
   <div class="container position-relative px-4 px-lg-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
@@ -32,28 +33,64 @@
       </div>
       {% endif %}
         </div>
+        
+        <div class="like-comment-section d-flex align-items-center">  
+          <div class="like-section d-flex align-items-center me-3">  
+            <form action="{{ url_for('like_post', post_id=post.id) }}" method="POST" class="like-form">
+              <button type="submit" class="like-button">
+                  <i class="far fa-heart {% if user_liked %}fas text-danger{% endif %}" id="heart-icon-{{ post.id }}"></i>
+              </button>
+            </form>
+            <span id="like-count-{{ post.id }}">{{ post.likes|length }}</span>
+          </div>
 
-        <!-- Comments Area -->
-        <div class="col-md-10 col-lg-8 col-xl-7">
-          {{ ckeditor.load() }}
-          {{ render_form(form, novalidate=True, button_map={"submit": "primary"}) }}
-          <div class="comment">
-            <ul class="commentList">
-              {% for comment in comments %}
-              <li>
-                <div class="commenterImage">
-                  <img src="{{ gravatar(comment.author.email) }}" /> <!-- Placeholder for now -->
-                </div>
-                <div class="commentText">
-                  <p>{{ comment.text|e }}</p> 
-                  <!-- escaping html  -->
-                  <span class="date sub-text">{{ comment.author.name }}</span> <!-- Show commenter's name -->
-                </div>
-              </li>
-              {% endfor %}
-            </ul>
+          <div class="comment-section d-flex align-items-center">
+              <a href="#comment-form" id="show-comment-form" class="comment-link">
+                  <i class="far fa-comment" id="comment-icon-{{ post.id }}"></i> <span id="comment-count-{{ post.id }}">{{ post.comments|length }}</span>
+              </a>
           </div>
         </div>
+  </div>
+  
+  <div id="comment-form" style="display: none;">
+      {{ ckeditor.load() }}
+      <form method="POST" class="comment-form">
+          {{ form.hidden_tag() }}
+          {{ form.text.label }} {{ form.text(cols="80", rows="5", class="form-control") }}
+          <button type="submit" class="btn btn-primary">Submit</button>
+      </form>
+  </div>
+      
+          <div class="comment">
+              <ul class="commentList">
+                  {% for comment in comments %}
+                  <li>
+                      <div class="commenterImage">
+                          <img src="{{ comment.author.email | gravatar }}" 
+                               alt="{{ comment.author.name }}'s Gravatar"
+                               class="rounded-circle">
+                      </div>
+                      <div class="commentText">
+                          <p>{{ comment.text|safe }}</p>
+                          <span class="date sub-text">{{ comment.author.name }} • {{ comment.date }}</span>
+                          {% if comment.author_id == current_user.id or comment.post.author_id == current_user.id %}
+                          <form action="{{ url_for('delete_comment', comment_id=comment.id) }}" method="POST" style="display:inline;">
+                              <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                          </form>
+                          {% endif %}
+                      </div>
+                  </li>
+                  {% endfor %}
+              </ul>
+          </div>
+      </div>
+      
+      <script>
+          document.getElementById('show-comment-form').addEventListener('click', function(event) {
+              event.preventDefault();
+              document.getElementById('comment-form').style.display = 'block';
+          });
+      </script>
       </div>
     </div>
   </article>
