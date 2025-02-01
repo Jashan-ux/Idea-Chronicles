@@ -4,7 +4,7 @@ from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column, joinedload
+from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column,joinedload
 from sqlalchemy import Integer, String, Text , create_engine , DateTime
 from werkzeug.security import generate_password_hash, check_password_hash
 from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
@@ -284,7 +284,7 @@ def contact():
     return render_template("contact.html", msg_sent=msg_sent)
 
 
-@app.route("/delete-comment/<int:comment_id>")
+@app.route("/delete-comment/<int:comment_id>" , methods = ["POST"])
 def delete_comment(comment_id):
     comment_to_delete = db.get_or_404(Comment, comment_id)
     if comment_to_delete.author_id != current_user.id and comment_to_delete.post.author_id != current_user.id:
@@ -292,7 +292,7 @@ def delete_comment(comment_id):
     db.session.delete(comment_to_delete)
     db.session.commit()
     flash('Comment deleted successfully', 'success')
-    return redirect(url_for('get_all_posts'))
+    return redirect(url_for('show_post', post_id=comment_to_delete.post_id))
 
 
 
